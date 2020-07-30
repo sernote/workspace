@@ -1,6 +1,6 @@
 import pytest
 
-from fixture.application import Application
+from fixture.application import Application, WebApplication
 
 fixture = None
 
@@ -10,7 +10,7 @@ def app(request) -> Application:
     """Test app session. Start new one if its None"""
     global fixture
     if fixture is None:
-        fixture = Application()
+        fixture = WebApplication()
     return fixture
 
 
