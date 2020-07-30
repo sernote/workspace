@@ -5,9 +5,11 @@ logging.basicConfig(filename='log.log', filemode='w', format='%(asctime)s - %(le
 
 
 class Loghelper:
+    """Logger"""
     def __init__(self, app):
         self.app = app
         self.debuglog = logging
 
     def info(self, text: str):
+        """Add info log"""
         self.debuglog.info(text)
