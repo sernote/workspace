@@ -18,9 +18,13 @@ class Application:
 
 class WebApplication(Application):
     """Web app"""
-    def __init__(self):
+    def __init__(self, headless: bool = False):
         Application.__init__(self)
-        self.driver = webdriver.Chrome()
+        opts = webdriver.ChromeOptions()
+        if headless is True:
+            opts.add_argument('headless')
+            opts.add_argument('disable-gpu')
+        self.driver = webdriver.Chrome(options=opts)
         self.driver.set_page_load_timeout(10)
         self.driver.get("https://yandex.ru")
         self.log.info('Starting tests')
