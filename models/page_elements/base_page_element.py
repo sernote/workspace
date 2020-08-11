@@ -1,5 +1,9 @@
 from models.pages.base_page import BasePage
 
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common import exceptions
+
 
 class Element:
     """Implement page element and actions with it"""
@@ -35,3 +39,44 @@ class Element:
                 children_locator.parent = None
                 result_locators_list.append(children_locator)
         return result_locators_list
+
+    def find_element(self, required_visibility=True) -> WebElement:
+        """Find element by its locators list"""
+        try:
+            if required_visibility is True:
+                result_element = self.wait_for_visibility_of_any(self.locators)
+            else:
+                # TODO presense_of_any
+                raise NotImplementedError
+        except exceptions.TimeoutException:
+            self.app.log.error(
+                f'Element {self.name} not found for {self.wait_timeout} sec. Locators: {str(self.locators)}')
+            raise exceptions.TimeoutException
+        else:
+            return result_element
+
+    def wait_for_visibility_of_any(self, locators: list, wait_timeout: int = None) -> WebElement:
+        """Waiting for element be visible, or raise exception"""
+        wd = self.app.driver
+        if wait_timeout is None:
+            wait_timeout = self.wait_timeout
+        result = WebDriverWait(wd, wait_timeout, poll_frequency=0.1).until(
+                VisibilityOfOneFromAny([(x.locator_type, x.locator_value) for x in locators]))
+        return result
+
+
+class VisibilityOfOneFromAny(object):
+    """Implement EC visibility_of_any for multi-locators"""
+    def __init__(self, locators):
+        self.locators = locators
+
+    def __call__(self, driver):
+        for locator in self.locators:
+            try:
+                element = driver.find_element(*locator)
+                if element.is_displayed():
+                    return element
+                else:
+                    return False
+            except Exception:
+                continue
