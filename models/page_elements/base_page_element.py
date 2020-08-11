@@ -64,6 +64,20 @@ class Element:
                 VisibilityOfOneFromAny([(x.locator_type, x.locator_value) for x in locators]))
         return result
 
+    def is_element_on_page(self, wait_timeout: int = None) -> bool:
+        """Checking visibility status of element"""
+        if wait_timeout is None:
+            wait_timeout = self.wait_timeout
+        self.app.log.info(f'Checking for elements visibility {self.name},page:{self.page.name}, time:{wait_timeout} s.')
+        try:
+            self.wait_for_visibility_of_any(self.locators, wait_timeout=wait_timeout)
+        except exceptions.TimeoutException:
+            self.app.log.info('Element not visible')
+            return False
+        else:
+            self.app.log.info('Element is visible')
+            return True
+
 
 class VisibilityOfOneFromAny(object):
     """Implement EC visibility_of_any for multi-locators"""
